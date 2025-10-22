@@ -1,9 +1,29 @@
 # Datos crudos y procesados
 Data/Raw_Data/
 
-# MLflow
+# MLflow specific
 mlruns/
+mlflow.db
+mlartifacts/
 
+# Local MLflow server files
+mlflow-data/
+
+# Model files
+*.pth
+*.onnx
+*.pt
+
+# MLflow tracking files
+runs/
+metrics/
+
+# Logs
+logs/
+*.log
+
+# Environment specific
+.env
 # Jupyter checkpoints
 .ipynb_checkpoints/
 
