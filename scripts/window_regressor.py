@@ -12,7 +12,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 
 ### Class to work just with sklearn 
-class Window_Regressor:
+class Window_Regressor_Sequence_to_scalar:
     def __init__(self, time_series_data: pd.Series, window_size: int, horizon: int):
         self.time_series_data = time_series_data
         self.window_size = window_size
@@ -34,4 +34,32 @@ class Window_Regressor:
             data.append(window_i)
         
         columns = [f'Predictor_{c}' for c in range(m)] + ['Target']
+        return pd.DataFrame(data, columns=columns)
+    
+
+
+class Window_Regressor_Sequence_to_Sequence:
+    def __init__(self, time_series_data: pd.Series, window_size: int, horizon: int):
+        self.time_series_data = time_series_data
+        self.window_size = window_size
+        self.horizon = horizon
+        self.generated_data_set = self.generate_data_set()
+    
+    
+    def generate_data_set(self):
+        n = self.time_series_data.shape[0]
+        m = self.window_size
+        data = []
+        
+        for i in range(n - (m+self.horizon) + 1):
+            window_i = []
+            for j in range(i, i + m):
+                window_i.append(self.time_series_data.iloc[j])
+            for index_target_i in range(1, self.horizon+1):
+                target_idx = j + index_target_i
+                window_i.append(self.time_series_data.iloc[target_idx])
+            data.append(window_i)
+        
+        columns = [f'Predictor_{c}' for c in range(m)] + [f'X_t+{h_i}' for h_i in range(self.horizon)]
+        print(columns)
         return pd.DataFrame(data, columns=columns)
