@@ -60,6 +60,5 @@ class Window_Regressor_Sequence_to_Sequence:
                 window_i.append(self.time_series_data.iloc[target_idx])
             data.append(window_i)
         
-        columns = [f'Predictor_{c}' for c in range(m)] + [f'X_t+{h_i}' for h_i in range(self.horizon)]
-        print(columns)
+        columns = [f'Predictor_{c}' for c in range(m)] + [f'X_t+{h_i+1}' for h_i in range(self.horizon)]
         return pd.DataFrame(data, columns=columns)
