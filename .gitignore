@@ -49,3 +49,6 @@ Thumbs.db
 ## Cache 
 *.pyc
 __pycache__
+
+## Models 
+catboost_info/

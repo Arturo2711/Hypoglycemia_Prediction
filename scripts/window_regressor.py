@@ -9,7 +9,6 @@ for performing a regression task. The dataset follows this structure:
 """
 
 import pandas as pd 
-from sklearn.model_selection import train_test_split
 
 ### Class to work just with sklearn 
 class Window_Regressor_Sequence_to_scalar:
