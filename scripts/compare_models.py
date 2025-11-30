@@ -9,7 +9,7 @@ from scripts.window_regressor import Window_Regressor_Sequence_to_scalar
 
 
 class Models_Horizon():
-    def __init__(self, cut_point:int, test_size:float , window_size:int, horizon:int, folds:int, models:list, model_names:list, metrics:list):
+    def __init__(self, cut_point:int, test_size:float , window_size:int, horizon:int, folds:int, models:list, model_names:list, metrics:list, metric_names:list):
         self.cut_point = cut_point
         self.test_size = test_size
         self.window_size = window_size
@@ -18,6 +18,7 @@ class Models_Horizon():
         self.models = models
         self.model_names = model_names
         self.metrics = metrics
+        self.metric_names = metric_names
 
 
         self.patients = self.load_patients()
@@ -47,8 +48,7 @@ class Models_Horizon():
         for key in keys:
             data_folds = self.patients[key] ## A list of tuples 
             columns = data_folds[0][0].columns ## Just to extract columns
-            tensor_results_metrics = np.zeros(shape=(len(self.model_names), len(self.metrics), self.folds)) ## 3 cause, we're measuring MSE,MAE and MAPE
-
+            tensor_results_metrics = np.zeros(shape=(len(self.model_names), len(self.metric_names), self.folds)) ## 3 cause, we're measuring MSE,MAE and MAPE
             for k, fold in enumerate(data_folds):
                 train_k, test_k = fold[0], fold[1]
                 X_train_k, y_train_k = train_k[columns[:-1]], train_k[columns[-1]]
@@ -64,12 +64,12 @@ class Models_Horizon():
             mse_all_models = tensor_results_metrics[:, 0, :]
             mae_all_models = tensor_results_metrics[:, 1, :]
             mape_all_models = tensor_results_metrics[:, 2, :]
+            rmse_all_models = tensor_results_metrics[:, 3, :]
 
-            results.append(list(np.mean(mse_all_models, axis=1)) + list(np.mean(mae_all_models, axis=1)) + list(np.mean(mape_all_models, axis=1)))
+            results.append(list(np.mean(mse_all_models, axis=1)) + list(np.mean(mae_all_models, axis=1)) + list(np.mean(mape_all_models, axis=1)) + list(np.mean(rmse_all_models, axis=1)))
 
         ### Prepare and return a df 
-        metrics = ['mse', 'mae', 'mape']
-        col_index = pd.MultiIndex.from_product([metrics, self.model_names], names=['metric', 'model'])
+        col_index = pd.MultiIndex.from_product([self.metric_names, self.model_names], names=['metric', 'model'])
         df_final = pd.DataFrame(
             results,
             index=keys,
@@ -83,7 +83,7 @@ class Models_Horizon():
             raise ValueError("No results to visualize. Run 'test_models()' first.")
     
 
-        metrics = ['mse', 'mae', 'mape']
+        metrics = self.metric_names
         model_names = self.model_names
 
         _, axes = plt.subplots(1, 3, figsize=figsize)
