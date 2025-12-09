@@ -36,12 +36,13 @@ class Window_Regressor_Sequence_to_scalar:
         columns = [f'Predictor_{c}' for c in range(m)] + ['Target']
         return pd.DataFrame(data, columns=columns)
     
-
+    
 class Window_Regressor_Postional_Frequentist_Encoding:
-    def __init__(self, time_series_data: pd.Series, window_size: int, horizon: int):
+    def __init__(self, time_series_data: pd.Series, window_size: int, horizon: int, freq_to_compute:int):
         self.time_series_data = time_series_data
         self.window_size = window_size
         self.horizon = horizon
+        self.max_freq = freq_to_compute
         self.generated_data_set = self.generate_data_set()
 
 
@@ -69,7 +70,7 @@ class Window_Regressor_Postional_Frequentist_Encoding:
     def create_data_frame(self):
         # Firstly, we compute the top patient's frequencies
         frequencies_dict = self.periodogram()
-        top_frequencies = sorted(frequencies_dict.items(), key=lambda x: x[1])[:5]
+        top_frequencies = sorted(frequencies_dict.items(), key=lambda x: x[1], reverse=True)[:self.max_freq]
         top_frequencies = {freq:(1/freq)/288 for freq, peridogram_value in top_frequencies} ## To get a dict freq :days
         self.top_frequencies = top_frequencies
 
@@ -79,6 +80,7 @@ class Window_Regressor_Postional_Frequentist_Encoding:
             c_i = 2 * np.pi * freq * positions
             sen_i = np.sin(c_i)
             cos_i = np.cos(c_i)
+            
             data[f'f_{days}_sin'] = sen_i
             data[f'f_{days}_cos'] = cos_i
         data['glucose'] = self.time_series_data.values
